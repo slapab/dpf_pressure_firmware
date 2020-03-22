@@ -1,0 +1,3 @@
+GNU_INSTALL_ROOT := /opt/gcc-arm-none-eabi-4_9-2015q3
+GNU_VERSION := 4.9
+GNU_PREFIX := arm-none-eabi

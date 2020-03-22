@@ -1,0 +1,4 @@
+.settings/
+_build/
+dfu/*
+!dfu/*.zip
