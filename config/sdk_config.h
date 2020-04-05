@@ -227,7 +227,7 @@
 // <e> ADC_ENABLED - nrf_drv_adc - Driver for ADC peripheral (nRF51)
 //==========================================================
 #ifndef ADC_ENABLED
-#define ADC_ENABLED 0
+#define ADC_ENABLED 1
 #endif
 #if  ADC_ENABLED
 // <o> ADC_CONFIG_IRQ_PRIORITY  - Interrupt priority
@@ -240,7 +240,7 @@
 // <3=> 3 
 
 #ifndef ADC_CONFIG_IRQ_PRIORITY
-#define ADC_CONFIG_IRQ_PRIORITY 3
+#define ADC_CONFIG_IRQ_PRIORITY 1
 #endif
 
 // <e> ADC_CONFIG_LOG_ENABLED - Enables logging in the module.
@@ -1258,7 +1258,7 @@
 // <e> PPI_ENABLED - nrf_drv_ppi - PPI peripheral driver
 //==========================================================
 #ifndef PPI_ENABLED
-#define PPI_ENABLED 0
+#define PPI_ENABLED 1
 #endif
 #if  PPI_ENABLED
 // <e> PPI_CONFIG_LOG_ENABLED - Enables logging in the module.
@@ -2321,7 +2321,7 @@
  
 
 #ifndef TIMER2_ENABLED
-#define TIMER2_ENABLED 0
+#define TIMER2_ENABLED 1
 #endif
 
 // <q> TIMER3_ENABLED  - Enable TIMER3 instance

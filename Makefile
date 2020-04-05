@@ -57,6 +57,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/timer/nrf_drv_timer.c \
   $(SDK_ROOT)/components/drivers_nrf/gpiote/nrf_drv_gpiote.c \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
+  $(SDK_ROOT)/components/drivers_nrf/adc/nrf_drv_adc.c \
+  $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -76,6 +78,10 @@ SRC_FILES += \
   $(PROJ_DIR)/modules/comm/notification_buffers.c \
   $(PROJ_DIR)/modules/ble_stack/ble_stack.c \
   $(PROJ_DIR)/modules/sys_time/sys_time.c \
+  $(PROJ_DIR)/modules/adc/adc_module.c \
+  $(PROJ_DIR)/modules/tim_sharing/tim1_sharing.c \
+  $(PROJ_DIR)/modules/app_logic/app_logic.c \
+  $(PROJ_DIR)/drivers/mcp9700t/mcp9700t.c \
   $(PROJ_DIR)/main.c \
   $(BSP_DIR)/bsp.c \
 
@@ -171,7 +177,6 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ble/nrf_ble_qwr \
   $(SDK_ROOT)/components/libraries/button \
   $(SDK_ROOT)/components/libraries/usbd \
-  $(SDK_ROOT)/components/drivers_nrf/saadc \
   $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c \
   $(SDK_ROOT)/components/ble/ble_racp \
   $(SDK_ROOT)/components/toolchain/gcc \
@@ -193,6 +198,10 @@ INC_FOLDERS += \
   $(PROJ_DIR)/modules/comm \
   $(PROJ_DIR)/modules/ble_stack \
   $(PROJ_DIR)/modules/sys_time \
+  $(PROJ_DIR)/modules/adc \
+  $(PROJ_DIR)/modules/tim_sharing \
+  $(PROJ_DIR)/modules/app_logic \
+  $(PROJ_DIR)/drivers/mcp9700t \
   $(BSP_DIR) \
   
 

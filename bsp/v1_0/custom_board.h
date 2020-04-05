@@ -31,5 +31,11 @@
 #define TX_BUF_SIZE 256
 #define RX_BUF_SIZE 4
 
+// Temperature analog pin
+#define TEMP_PIN_NUMBER 1
+#define TEMP_AIN NRF_ADC_CONFIG_INPUT_2
+#define SIG_IN_PIN_NUMBER 2
+#define SIG_AIN NRF_ADC_CONFIG_INPUT_3
+
 
 #endif /* custom_board.h */

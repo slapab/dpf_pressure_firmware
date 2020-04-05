@@ -58,6 +58,9 @@
 #include "notification_buffers.h"
 #include "nrf_pt.h"
 #include "sys_time.h"
+#include "tim1_sharing.h"
+#include "adc_module.h" 
+#include "app_logic.h"
 
 #include "log_config.h"
 #define NRF_LOG_MODULE_NAME "main"
@@ -129,7 +132,6 @@ void mytest(void) {
     }
 }
 
-
 int main(void) {
     // Set the external high frequency clock source to 32 MHz
     NRF_CLOCK->XTALFREQ = 0xFFFFFF00;
@@ -139,8 +141,16 @@ int main(void) {
     APP_SCHED_INIT(6, 10);
 
     NRF_LOG_INIT(NULL);
+    TIM1_SHARING_init();
 
     SYS_TIME_init();
+
+    ADC_init_t adc_init = {
+            .samples_callback = APP_LOGIC_adc_samples_callback
+    };
+    if (false == ADC_init(&adc_init)) {
+        NRF_LOG_ERROR("Failed to initialize ADC");
+    }
 
     BLE_STACK_init();
 
@@ -188,6 +198,8 @@ int main(void) {
     PT_INIT(&pt);
 
     pt_t pt_test_tim = {0};
+
+    ADC_start_conv();
     // Enter main loop.
     for (;;) {
         app_sched_execute();
@@ -197,6 +209,7 @@ int main(void) {
 
         (void)PT_SCHEDULE(test_blecomm(&pt));
         (void)PT_SCHEDULE(test_sys_tim(&pt_test_tim));
-//        mytest();
+
+        APP_LOGIC_pool();
     }
 }
