@@ -163,24 +163,24 @@ int main(void) {
     if (false == DAC_init()) {
         NRF_LOG_ERROR("Failed to init DAC\n");
     } else {
-        if (false == DAC_write_vol_sett_blocking()) {
-            NRF_LOG_ERROR("Failed to write settings in nvm\n");
-        }
-
-        if (false == DAC_write_vol_dac_blocking(410)) {
-            NRF_LOG_ERROR("Failed to write volatile dac\n");
-        }
-        // Do read if device is present
-        MCP47x6_read_t read_data = {{0}};
-        if (true == DAC_read_blocking(&read_data)) {
-            NRF_LOG_PROCESS();
-            NRF_LOG_DEBUG("Successfully read from DAC, gain is %d, ref is %d, dac is %u\n", read_data.vol_sett.gain, read_data.vol_sett.vref,
-                    read_data.vol_data);
-            NRF_LOG_PROCESS();
-
-        } else {
-            NRF_LOG_ERROR("Failed to read from DAC\n");
-        }
+//        if (false == DAC_write_vol_sett_blocking()) {
+//            NRF_LOG_ERROR("Failed to write settings in nvm\n");
+//        }
+//
+//        if (false == DAC_write_vol_dac_blocking(410)) {
+//            NRF_LOG_ERROR("Failed to write volatile dac\n");
+//        }
+//        // Do read if device is present
+//        MCP47x6_read_t read_data = {{0}};
+//        if (true == DAC_read_blocking(&read_data)) {
+//            NRF_LOG_PROCESS();
+//            NRF_LOG_DEBUG("Successfully read from DAC, gain is %d, ref is %d, dac is %u\n", read_data.vol_sett.gain, read_data.vol_sett.vref,
+//                    read_data.vol_data);
+//            NRF_LOG_PROCESS();
+//
+//        } else {
+//            NRF_LOG_ERROR("Failed to read from DAC\n");
+//        }
     }
 
     NRF_LOG_INFO("App started\n");

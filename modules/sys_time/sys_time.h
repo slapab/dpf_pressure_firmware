@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define SYS_TIME_IS_TIMEOUT(start_tp, timeout_ms) ((bool)((SYS_TIME_get_tick() - (start_tp)) > (timeout_ms)))
+
 bool SYS_TIME_init(void);
 
 uint32_t SYS_TIME_get_tick(void);
