@@ -61,6 +61,7 @@
 #include "tim1_sharing.h"
 #include "adc_module.h" 
 #include "app_logic.h"
+#include "dac.h"
 
 #include "log_config.h"
 #define NRF_LOG_MODULE_NAME "main"
@@ -149,15 +150,38 @@ int main(void) {
             .samples_callback = APP_LOGIC_adc_samples_callback
     };
     if (false == ADC_init(&adc_init)) {
-        NRF_LOG_ERROR("Failed to initialize ADC");
+        NRF_LOG_ERROR("Failed to initialize ADC\n");
     }
+
 
     BLE_STACK_init();
 
     if (false == BLE_COMM_init()) {
-        NRF_LOG_ERROR("Failed to init BLE COMM");
+        NRF_LOG_ERROR("Failed to init BLE COMM\n");
     }
 
+    if (false == DAC_init()) {
+        NRF_LOG_ERROR("Failed to init DAC\n");
+    } else {
+        if (false == DAC_write_vol_sett_blocking()) {
+            NRF_LOG_ERROR("Failed to write settings in nvm\n");
+        }
+
+        if (false == DAC_write_vol_dac_blocking(410)) {
+            NRF_LOG_ERROR("Failed to write volatile dac\n");
+        }
+        // Do read if device is present
+        MCP47x6_read_t read_data = {{0}};
+        if (true == DAC_read_blocking(&read_data)) {
+            NRF_LOG_PROCESS();
+            NRF_LOG_DEBUG("Successfully read from DAC, gain is %d, ref is %d, dac is %u\n", read_data.vol_sett.gain, read_data.vol_sett.vref,
+                    read_data.vol_data);
+            NRF_LOG_PROCESS();
+
+        } else {
+            NRF_LOG_ERROR("Failed to read from DAC\n");
+        }
+    }
 
     NRF_LOG_INFO("App started\n");
 

@@ -37,5 +37,8 @@
 #define SIG_IN_PIN_NUMBER 2
 #define SIG_AIN NRF_ADC_CONFIG_INPUT_3
 
+// DAC TWI pins
+#define DAC_TWI_SDA_PIN_NUMBER 9
+#define DAC_TWI_SCL_PIN_NUMBER 10
 
 #endif /* custom_board.h */

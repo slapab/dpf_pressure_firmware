@@ -19,5 +19,7 @@
 
 #define LOG_CFG_LOGIC_LOG_LEVEL 4
 
+#define LOG_CFG_DAC_LOG_LEVEL 4
+
 
 #endif /* CONFIG_LOG_CONFIG_H_ */

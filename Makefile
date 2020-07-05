@@ -59,6 +59,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/drivers_nrf/uart/nrf_drv_uart.c \
   $(SDK_ROOT)/components/drivers_nrf/adc/nrf_drv_adc.c \
   $(SDK_ROOT)/components/drivers_nrf/ppi/nrf_drv_ppi.c \
+  $(SDK_ROOT)/components/drivers_nrf/twi_master/nrf_drv_twi.c \
   $(SDK_ROOT)/external/segger_rtt/RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -81,7 +82,9 @@ SRC_FILES += \
   $(PROJ_DIR)/modules/adc/adc_module.c \
   $(PROJ_DIR)/modules/tim_sharing/tim1_sharing.c \
   $(PROJ_DIR)/modules/app_logic/app_logic.c \
+  $(PROJ_DIR)/modules/dac/dac.c \
   $(PROJ_DIR)/drivers/mcp9700t/mcp9700t.c \
+  $(PROJ_DIR)/drivers/mcp47x6/mcp47x6.c \
   $(PROJ_DIR)/main.c \
   $(BSP_DIR)/bsp.c \
 
@@ -201,7 +204,9 @@ INC_FOLDERS += \
   $(PROJ_DIR)/modules/adc \
   $(PROJ_DIR)/modules/tim_sharing \
   $(PROJ_DIR)/modules/app_logic \
+  $(PROJ_DIR)/modules/dac \
   $(PROJ_DIR)/drivers/mcp9700t \
+  $(PROJ_DIR)/drivers/mcp47x6 \
   $(BSP_DIR) \
   
 
