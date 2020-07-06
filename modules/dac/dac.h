@@ -13,4 +13,7 @@ bool DAC_write_vol_sett_blocking(void);
 
 bool DAC_write_vol_dac_blocking(uint16_t dac);
 
+bool DAC_update_dac(const uint16_t voltage_mv);
+
+
 #endif /* MODULES_DAC_H_ */

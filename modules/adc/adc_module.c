@@ -46,14 +46,17 @@ enum {
     ADC_NBR_OF_CHANNELS = 2
 };
 
-#define ADC_SAMPLES_PER_CHANNEL 10
-#define ADC_SAMPLES_COUNT_IN_BUFFERS (ADC_NBR_OF_CHANNELS * ADC_SAMPLES_PER_CHANNEL)
+#define GET_CONVERT_BUFFER_LEN(samples_per_channel) (ADC_NBR_OF_CHANNELS * (samples_per_channel))
+
+#define ADC_MAX_SAMPLES_PER_CHANNEL 10
+#define ADC_SAMPLES_COUNT_IN_BUFFERS GET_CONVERT_BUFFER_LEN(ADC_MAX_SAMPLES_PER_CHANNEL)
 static nrf_adc_value_t smpls_buffers_pool[2][ADC_SAMPLES_COUNT_IN_BUFFERS];
 
 static nrf_ppi_channel_t sampling_ppi_ch;
 
 /// Application callback for sending samples
 static ADC_samples_callback_t app_callback;
+static uint16_t samples_nbr_per_channel = ADC_MAX_SAMPLES_PER_CHANNEL;
 
 /// Flag that tells interrupt handler about stopped sampling by application
 static sig_atomic_t stop_sampling;
@@ -72,7 +75,7 @@ bool ADC_init(const ADC_init_t* init) {
 
     ret_code_t err = nrf_drv_timer_init(&tim2, &cfg, timer_event_handler);
     APP_ERROR_CHECK(err);
-    uint32_t ticks = nrf_drv_timer_ms_to_ticks(&tim2, 100);
+    uint32_t ticks = nrf_drv_timer_us_to_ticks(&tim2, init->sampling_period_us);
     nrf_drv_timer_extended_compare(&tim2, NRF_TIMER_CC_CHANNEL0, ticks, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, false);
 
 
@@ -85,6 +88,10 @@ bool ADC_init(const ADC_init_t* init) {
                 nrf_drv_adc_start_task_get()));
 
         app_callback = init->samples_callback;
+        samples_nbr_per_channel = init->samples_nbr_per_channel;
+        if (samples_nbr_per_channel > ADC_MAX_SAMPLES_PER_CHANNEL) {
+            samples_nbr_per_channel = ADC_MAX_SAMPLES_PER_CHANNEL;
+        }
 
         ret_val = true;
     } else {
@@ -97,7 +104,7 @@ bool ADC_init(const ADC_init_t* init) {
 bool ADC_start_conv(void) {
     stop_sampling = false;
     APP_ERROR_CHECK(init_adc());
-    APP_ERROR_CHECK(nrf_drv_adc_buffer_convert(&smpls_buffers_pool[0][0], ADC_SAMPLES_COUNT_IN_BUFFERS));
+    APP_ERROR_CHECK(nrf_drv_adc_buffer_convert(&smpls_buffers_pool[0][0], GET_CONVERT_BUFFER_LEN(samples_nbr_per_channel)));
     // start sampling
     nrf_drv_timer_enable(&tim2);
     APP_ERROR_CHECK(nrf_drv_ppi_channel_enable(sampling_ppi_ch));
@@ -141,7 +148,7 @@ static void adc_event_handler(nrf_drv_adc_evt_t const* evt) {
             if (false == stop_sampling) { // can continue sampling
                 nrf_adc_value_t* next_buff = ((uintptr_t)&smpls_buffers_pool[0][0] == (uintptr_t)evt->data.done.p_buffer) ?
                         &smpls_buffers_pool[1][0] : &smpls_buffers_pool[0][0];
-                nrf_drv_adc_buffer_convert(next_buff, ADC_SAMPLES_COUNT_IN_BUFFERS);
+                nrf_drv_adc_buffer_convert(next_buff, GET_CONVERT_BUFFER_LEN(samples_nbr_per_channel));
             }
 
             // report samples stored in previous buffer to the application logic

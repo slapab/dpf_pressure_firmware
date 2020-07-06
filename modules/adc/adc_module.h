@@ -23,6 +23,8 @@ typedef void (*ADC_samples_callback_t)(const ADC_samples_t* descr);
 
 typedef struct {
     ADC_samples_callback_t samples_callback;
+    uint32_t sampling_period_us;
+    uint16_t samples_nbr_per_channel;
 } ADC_init_t;
 
 bool ADC_init(const ADC_init_t* init);

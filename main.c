@@ -147,7 +147,9 @@ int main(void) {
     SYS_TIME_init();
 
     ADC_init_t adc_init = {
-            .samples_callback = APP_LOGIC_adc_samples_callback
+            .samples_callback = APP_LOGIC_adc_samples_callback,
+            .sampling_period_us = 333U, // ~3 kHz
+            .samples_nbr_per_channel = 3U,
     };
     if (false == ADC_init(&adc_init)) {
         NRF_LOG_ERROR("Failed to initialize ADC\n");
@@ -162,25 +164,6 @@ int main(void) {
 
     if (false == DAC_init()) {
         NRF_LOG_ERROR("Failed to init DAC\n");
-    } else {
-//        if (false == DAC_write_vol_sett_blocking()) {
-//            NRF_LOG_ERROR("Failed to write settings in nvm\n");
-//        }
-//
-//        if (false == DAC_write_vol_dac_blocking(410)) {
-//            NRF_LOG_ERROR("Failed to write volatile dac\n");
-//        }
-//        // Do read if device is present
-//        MCP47x6_read_t read_data = {{0}};
-//        if (true == DAC_read_blocking(&read_data)) {
-//            NRF_LOG_PROCESS();
-//            NRF_LOG_DEBUG("Successfully read from DAC, gain is %d, ref is %d, dac is %u\n", read_data.vol_sett.gain, read_data.vol_sett.vref,
-//                    read_data.vol_data);
-//            NRF_LOG_PROCESS();
-//
-//        } else {
-//            NRF_LOG_ERROR("Failed to read from DAC\n");
-//        }
     }
 
     NRF_LOG_INFO("App started\n");
@@ -202,28 +185,19 @@ int main(void) {
         NRF_LOG_ERROR("Failed to init notif buff\r\n");
     } else {
         NRF_LOG_INFO("NOTIF BUFF initialized\n");
-        for (int i = 0; i < Q_NBR; ++i) {
-            NRF_LOG_INFO("Buff ptr = %p\n", (uint32_t)&mem_pool[i][0]);
-            while(NRF_LOG_PROCESS());
-        }
     }
 
     while(NRF_LOG_PROCESS());
-
-    for (int i = 0; i < Q_NBR + 1; ++i) {
-        uint8_t* p = NULL;
-        bool err = NOTIF_BUFFERS_get_free_buffer(&descr, &p);
-        NRF_LOG_INFO("Get %d) (err %d) %p\n", i, err, (uint32_t)p);
-        while(NRF_LOG_PROCESS());
-    }
 
 
     pt_t pt = {0};
     PT_INIT(&pt);
 
     pt_t pt_test_tim = {0};
+    PT_INIT(&pt_test_tim);
 
-    ADC_start_conv();
+    APP_LOGIC_init();
+
     // Enter main loop.
     for (;;) {
         app_sched_execute();
