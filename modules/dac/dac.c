@@ -40,9 +40,9 @@ static const nrf_drv_twi_t twi = NRF_DRV_TWI_INSTANCE(0);
 static const nrf_drv_twi_config_t twi_cfg = {
     .scl = DAC_TWI_SCL_PIN_NUMBER,
     .sda = DAC_TWI_SDA_PIN_NUMBER,
-    .frequency = NRF_TWI_FREQ_400K,
+    .frequency = NRF_TWI_FREQ_250K,
     .clear_bus_init = true,
-    .hold_bus_uninit = false
+    .hold_bus_uninit = true
 };
 
 static const MCP47x6_settings_t dac_nv_settings = {
@@ -131,38 +131,33 @@ bool DAC_update_dac(const uint16_t voltage_mv) {
 
     // raw write value to queue
     uint16_t raw = DAC_CONV_MV_TO_RAW(voltage_mv);
-    // check if xfer is done fist, if so, then no need to add to queue, just send,
-    // but if xfer is not done, then add to queue and then do recheck xfer status to verify if xfer hasn't finished before put to queue
+
+    // put to queue
+    if (NRF_SUCCESS != nrf_queue_push(&m_dac_values_queue, &raw)) {
+        NRF_LOG_ERROR("%s(): queue is full\n", (uint32_t)__func__);
+    }
+
     if (TWI_XFER_IS_DONE == xfer_done) {
-        // start transfer
-        start_xfer:
-        {
-            const MCP47x6_settings_t sett = DAC_UPDATE_SETTINGS_INITIALIZER;
+        if (NRF_SUCCESS == nrf_queue_pop(&m_dac_values_queue, &raw)) {
+            // start transfer
             static uint8_t tx_data[2] = {0};
+            const MCP47x6_settings_t sett = DAC_UPDATE_SETTINGS_INITIALIZER;
             MCP47x6_prepare_write_volatile_DAC(&sett, raw, &tx_data[0]);
-            nrf_drv_twi_xfer_desc_t xfer_desc = NRF_DRV_TWI_XFER_DESC_TX(TWI_SLAVE_ADDR, &tx_data[0], sizeof(tx_data));
-            ret_code_t err = nrf_drv_twi_xfer(&twi, &xfer_desc, 0);
+            ret_code_t err = nrf_drv_twi_tx(&twi, TWI_SLAVE_ADDR, &tx_data[0], sizeof(tx_data), false);
             if (NRF_SUCCESS == err) {
                 xfer_done = TWI_XFER_IN_PROGRESS;
                 ret_val = true;
             } else {
-                NRF_LOG_ERROR("error in %s(), err %d\n", (uint32_t)__func__, err);
+                NRF_LOG_ERROR("%s(): failed to start twi tx, err %d\n", (uint32_t)__func__, err);
             }
+        } else {
+            NRF_LOG_ERROR("%s(): queue internal error\n");
+            nrf_queue_reset(&m_dac_values_queue);
         }
-    } else { // twi is busy right now
-        if (NRF_ERROR_NO_MEM == nrf_queue_write(&m_dac_values_queue, &raw, 1)) {
-            NRF_LOG_ERROR("%s(): queue is full\n", (uint32_t)__func__);
-        } else { // success
-            // test if TWI is idle, then start sending
-            if (TWI_XFER_IS_DONE == xfer_done) {
-                // done, so start transfer, but read from queue
-                nrf_queue_read(&m_dac_values_queue, &raw, 1);
-                goto start_xfer;
-            } else {
-                ret_val = true;
-            }
-        }
+    } else { // is in progress
+        ret_val = true;
     }
+
     return ret_val;
 }
 
@@ -197,15 +192,16 @@ static void twi_evt_handler(const nrf_drv_twi_evt_t* p_event, void* p_context) {
 
     if (false == nrf_queue_is_empty(&m_dac_values_queue)) {
         uint16_t raw_dac = UINT16_C(0);
-        if (NRF_SUCCESS == nrf_queue_read(&m_dac_values_queue, &raw_dac, 1)) {
+        if (NRF_SUCCESS == nrf_queue_pop(&m_dac_values_queue, &raw_dac)) {
             const MCP47x6_settings_t sett = DAC_UPDATE_SETTINGS_INITIALIZER;
             static uint8_t tx_data[2] = {0};
             MCP47x6_prepare_write_volatile_DAC(&sett, raw_dac, &tx_data[0]);
-            nrf_drv_twi_xfer_desc_t xfer_desc = NRF_DRV_TWI_XFER_DESC_TX(TWI_SLAVE_ADDR, &tx_data[0], sizeof(tx_data));
-            ret_code_t err = nrf_drv_twi_xfer(&twi, &xfer_desc, 0);
+            ret_code_t err = nrf_drv_twi_tx(&twi, TWI_SLAVE_ADDR, &tx_data[0], sizeof(tx_data), false);
             if (NRF_SUCCESS != err) {
                 NRF_LOG_ERROR("(irq) failed to update DAC, err %d\n", err);
                 goto xfer_done;
+            } else { // keep in progress
+                xfer_done = TWI_XFER_IN_PROGRESS;
             }
         } else {
             NRF_LOG_ERROR("(irq) queue inconsistency, reseting queue");

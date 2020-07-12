@@ -2,6 +2,8 @@
 #include "mcp9700t.h"
 #include "dac.h"
 #include "adc_module.h"
+#include "ping_pong_buffers.h"
+#include "nrf_queue.h"
 #include "nrf_pt.h"
 #include <signal.h>
 
@@ -9,10 +11,10 @@
 #define NRF_LOG_MODULE_NAME "logic"
 #define NRF_LOG_LEVEL LOG_CFG_LOGIC_LOG_LEVEL
 #include "nrf_log.h"
+#include "nrf_log_ctrl.h"
 
-
-typedef struct {
-    nrf_adc_value_t buff[50];
+typedef struct __attribute__((packed)) {
+    nrf_adc_value_t buff[10];
     uint16_t samples_nbr;
 } APP_LOGIC_adc_data_t;
 
@@ -24,7 +26,45 @@ static volatile sig_atomic_t got_adc = 0;
 
 static pt_t handle_dc_pt;
 
+#define ADC_SAMPLES_BUFF_DESCR_COUNT 5
+PP_BUFFERS_DEF_QUEUES(APP_LOGIC_adc_data_t*, ADC_SAMPLES_BUFF_DESCR_COUNT, adc_buff_free_queue, adc_buff_in_use_queue);
+static APP_LOGIC_adc_data_t adc_samples_buff_descr_pool[ADC_SAMPLES_BUFF_DESCR_COUNT][1];
+static ping_pong_buffs_descr_t adc_pp_buffs_descr;
+
 bool APP_LOGIC_init(void) {
+    adc_pp_buffs_descr.free_buffers_queue = &adc_buff_free_queue;
+    adc_pp_buffs_descr.in_use_buffers_queue = &adc_buff_in_use_queue;
+    adc_pp_buffs_descr.item_size = sizeof(APP_LOGIC_adc_data_t);
+    adc_pp_buffs_descr.mempool_rows = ADC_SAMPLES_BUFF_DESCR_COUNT;
+    adc_pp_buffs_descr.mempool_cols = 1;
+    adc_pp_buffs_descr.mempool = (uint8_t (*)[])adc_samples_buff_descr_pool; // cast to comply with uint8_t as mempool base type
+    if (false == PP_BUFFERS_init(&adc_pp_buffs_descr)) {
+        NRF_LOG_ERROR("Failed to init PP buffers for ADC\n");
+        NRF_LOG_PROCESS();
+    } else {
+        //test
+        NRF_LOG_INFO("sizeof(APP_LOGIC_adc_data_t) = %u\n", sizeof(APP_LOGIC_adc_data_t));
+        NRF_LOG_PROCESS();
+        // print addresses
+        for (int i = 0; i < ADC_SAMPLES_BUFF_DESCR_COUNT; ++i) {
+            NRF_LOG_INFO("%p ", (uint32_t)&adc_samples_buff_descr_pool[i][0]);
+            NRF_LOG_PROCESS();
+        }
+        NRF_LOG_INFO("\n");
+
+        // now get pointers by addresses and print
+        for (int i = 0; i < ADC_SAMPLES_BUFF_DESCR_COUNT; ++i) {
+            APP_LOGIC_adc_data_t* addr = NULL;
+            if (true == PP_BUFFERS_get_free_buffer(&adc_pp_buffs_descr, &addr)) {
+                NRF_LOG_INFO("%p ", (uint32_t)addr);
+                NRF_LOG_PROCESS();
+            }
+        }
+        NRF_LOG_INFO("\n");
+    }
+
+
+
     PT_INIT(&handle_dc_pt);
     // start ADC conversion
     ADC_start_conv();

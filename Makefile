@@ -83,6 +83,7 @@ SRC_FILES += \
   $(PROJ_DIR)/modules/tim_sharing/tim1_sharing.c \
   $(PROJ_DIR)/modules/app_logic/app_logic.c \
   $(PROJ_DIR)/modules/dac/dac.c \
+  $(PROJ_DIR)/modules/common/ping_pong_buffers.c \
   $(PROJ_DIR)/drivers/mcp9700t/mcp9700t.c \
   $(PROJ_DIR)/drivers/mcp47x6/mcp47x6.c \
   $(PROJ_DIR)/main.c \
@@ -205,6 +206,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/modules/tim_sharing \
   $(PROJ_DIR)/modules/app_logic \
   $(PROJ_DIR)/modules/dac \
+  $(PROJ_DIR)/modules/common \
   $(PROJ_DIR)/drivers/mcp9700t \
   $(PROJ_DIR)/drivers/mcp47x6 \
   $(BSP_DIR) \

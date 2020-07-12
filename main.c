@@ -148,8 +148,8 @@ int main(void) {
 
     ADC_init_t adc_init = {
             .samples_callback = APP_LOGIC_adc_samples_callback,
-            .sampling_period_us = 333U, // ~3 kHz
-            .samples_nbr_per_channel = 3U,
+            .sampling_period_us = 167U, // ~6 kHz
+            .samples_nbr_per_channel = 2U,
     };
     if (false == ADC_init(&adc_init)) {
         NRF_LOG_ERROR("Failed to initialize ADC\n");
