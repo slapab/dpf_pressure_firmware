@@ -148,7 +148,7 @@ int main(void) {
 
     ADC_init_t adc_init = {
             .samples_callback = APP_LOGIC_adc_samples_callback,
-            .sampling_period_us = 167U, // ~6 kHz
+            .sampling_period_us = 333,//167U, // ~6 kHz
             .samples_nbr_per_channel = 2U,
     };
     if (false == ADC_init(&adc_init)) {

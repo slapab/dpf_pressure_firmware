@@ -27,6 +27,12 @@ bool PP_BUFFERS_init(ping_pong_buffs_descr_t* descr);
 
 bool PP_BUFFERS_reset(const ping_pong_buffs_descr_t* descr);
 
+/**
+ *
+ * @param descr
+ * @param ptr_to_dst_buff_addr address to pointer which will point to first element of free buffer
+ * @return
+ */
 bool PP_BUFFERS_get_free_buffer(const ping_pong_buffs_descr_t* descr, void* ptr_to_dst_buff_addr);
 bool PP_BUFFERS_set_free_buffer(const ping_pong_buffs_descr_t* descr, void* buff_addr);
 bool PP_BUFFERS_get_in_use_buffer(const ping_pong_buffs_descr_t* descr, void* ptr_to_dst_buff_addr);

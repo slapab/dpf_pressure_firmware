@@ -42,7 +42,7 @@ static const nrf_drv_twi_config_t twi_cfg = {
     .sda = DAC_TWI_SDA_PIN_NUMBER,
     .frequency = NRF_TWI_FREQ_250K,
     .clear_bus_init = true,
-    .hold_bus_uninit = true
+    .hold_bus_uninit = false
 };
 
 static const MCP47x6_settings_t dac_nv_settings = {
@@ -135,6 +135,7 @@ bool DAC_update_dac(const uint16_t voltage_mv) {
     // put to queue
     if (NRF_SUCCESS != nrf_queue_push(&m_dac_values_queue, &raw)) {
         NRF_LOG_ERROR("%s(): queue is full\n", (uint32_t)__func__);
+        return ret_val;
     }
 
     if (TWI_XFER_IS_DONE == xfer_done) {
